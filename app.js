@@ -1,20 +1,20 @@
-// 완전 독립형 CNN 시각화 - 외부 데이터 없이 작동
-// 합성 데이터로 빠른 학습
-
-class SimpleMNISTTrainer {
-    generateSyntheticData(numSamples = 5000) {
+// 최고 정확도 CNN - 20K 샘플 + 50 Epochs + 현실적 패턴
+class AdvancedMNISTTrainer {
+    generateSyntheticData(numSamples = 20000) {
+        console.log(`🎨 ${numSamples}개 고품질 데이터 생성 중...`);
         const xs = [];
         const ys = [];
         
         for (let i = 0; i < numSamples; i++) {
             const digit = Math.floor(Math.random() * 10);
-            const image = this.createDigitPattern(digit);
-            
-            xs.push(image);
+            const image = this.createRealisticDigit(digit);
+            xs.push(...image);
             
             const label = new Array(10).fill(0);
             label[digit] = 1;
-            ys.push(label);
+            ys.push(...label);
+            
+            if (i % 2000 === 0) console.log(`  ${i}/${numSamples} 완료`);
         }
         
         return {
@@ -23,144 +23,145 @@ class SimpleMNISTTrainer {
         };
     }
     
-    createDigitPattern(digit) {
-        const image = new Array(28 * 28).fill(0);
+    createRealisticDigit(digit) {
+        const img = new Array(784).fill(0);
+        const style = Math.random();
+        const thick = 1.5 + Math.random() * 1.5;
+        const slant = (Math.random() - 0.5) * 0.2;
         
-        // 각 숫자별 패턴 생성
         switch(digit) {
             case 0:
-                this.drawCircle(image, 14, 14, 6);
+                if (style < 0.5) {
+                    this.drawEllipse(img, 14, 14, 6, 8, thick);
+                } else {
+                    this.drawCircle(img, 14, 14, 6.5, thick);
+                }
                 break;
             case 1:
-                this.drawLine(image, 14, 6, 14, 22);
-                this.drawLine(image, 12, 8, 14, 6);
+                this.drawLine(img, 14, 6, 14, 22, thick);
+                if (style < 0.3) this.drawLine(img, 12, 8, 14, 6, thick);
+                if (style > 0.7) this.drawLine(img, 11, 22, 17, 22, thick * 0.8);
                 break;
             case 2:
-                this.drawLine(image, 8, 8, 20, 8);
-                this.drawLine(image, 20, 8, 20, 14);
-                this.drawLine(image, 20, 14, 8, 20);
-                this.drawLine(image, 8, 20, 20, 20);
+                this.drawArc(img, 14, 10, 5, 0, Math.PI, thick);
+                this.drawLine(img, 19, 10, 9, 21, thick);
+                this.drawLine(img, 9, 21, 19, 21, thick);
                 break;
             case 3:
-                this.drawLine(image, 8, 8, 20, 8);
-                this.drawLine(image, 20, 8, 20, 20);
-                this.drawLine(image, 8, 20, 20, 20);
-                this.drawLine(image, 12, 14, 18, 14);
+                this.drawArc(img, 14, 10, 5, -Math.PI/2, Math.PI/2, thick);
+                this.drawArc(img, 14, 18, 5, -Math.PI/2, Math.PI/2, thick);
                 break;
             case 4:
-                this.drawLine(image, 10, 6, 10, 16);
-                this.drawLine(image, 10, 16, 20, 16);
-                this.drawLine(image, 18, 8, 18, 22);
+                this.drawLine(img, 10, 6, 8, 17, thick);
+                this.drawLine(img, 8, 17, 20, 17, thick);
+                this.drawLine(img, 18, 10, 18, 22, thick);
                 break;
             case 5:
-                this.drawLine(image, 8, 6, 20, 6);
-                this.drawLine(image, 8, 6, 8, 14);
-                this.drawLine(image, 8, 14, 20, 14);
-                this.drawLine(image, 20, 14, 20, 20);
-                this.drawLine(image, 8, 20, 20, 20);
+                this.drawLine(img, 9, 7, 19, 7, thick);
+                this.drawLine(img, 9, 7, 9, 14, thick);
+                this.drawArc(img, 14, 17, 5, -Math.PI/2, Math.PI/2, thick);
                 break;
             case 6:
-                this.drawCircle(image, 14, 16, 5);
-                this.drawLine(image, 10, 8, 10, 16);
+                this.drawCircle(img, 14, 17, 5, thick);
+                this.drawLine(img, 10, 9, 10, 17, thick);
+                this.drawArc(img, 14, 9, 4, Math.PI/2, Math.PI, thick * 0.8);
                 break;
             case 7:
-                this.drawLine(image, 8, 6, 20, 6);
-                this.drawLine(image, 20, 6, 14, 22);
+                this.drawLine(img, 8, 7, 20, 7, thick);
+                this.drawLine(img, 20, 7, 13, 21, thick);
+                if (style > 0.6) this.drawLine(img, 10, 13, 17, 13, thick * 0.7);
                 break;
             case 8:
-                this.drawCircle(image, 14, 10, 4);
-                this.drawCircle(image, 14, 18, 4);
+                this.drawCircle(img, 14, 10, 4.5, thick);
+                this.drawCircle(img, 14, 18, 5, thick);
                 break;
             case 9:
-                this.drawCircle(image, 14, 12, 5);
-                this.drawLine(image, 18, 12, 18, 22);
+                this.drawCircle(img, 14, 11, 5, thick);
+                this.drawLine(img, 19, 11, 19, 21, thick);
+                if (style > 0.5) this.drawLine(img, 14, 21, 19, 21, thick * 0.8);
                 break;
         }
         
-        // 노이즈 추가 (학습 다양성)
-        for (let i = 0; i < image.length; i++) {
-            if (image[i] > 0) {
-                image[i] = 0.7 + Math.random() * 0.3;
-            } else if (Math.random() < 0.02) {
-                image[i] = Math.random() * 0.3;
+        // 노이즈
+        for (let i = 0; i < 784; i++) {
+            if (img[i] > 0) {
+                img[i] = Math.min(1, img[i] * (0.85 + Math.random() * 0.15));
+            } else if (Math.random() < 0.003) {
+                img[i] = Math.random() * 0.08;
             }
         }
         
-        // 약간의 변형 추가
-        const transformed = this.addTransformations(image);
-        
-        return transformed;
+        return this.transform(img, slant);
     }
     
-    drawLine(image, x1, y1, x2, y2) {
-        const dx = Math.abs(x2 - x1);
-        const dy = Math.abs(y2 - y1);
-        const sx = x1 < x2 ? 1 : -1;
-        const sy = y1 < y2 ? 1 : -1;
-        let err = dx - dy;
-        
-        let x = x1, y = y1;
-        
-        while (true) {
-            if (x >= 0 && x < 28 && y >= 0 && y < 28) {
-                image[y * 28 + x] = 1;
-                // 굵게
-                if (x > 0) image[y * 28 + (x-1)] = 1;
-                if (x < 27) image[y * 28 + (x+1)] = 1;
-            }
-            
-            if (x === x2 && y === y2) break;
-            
-            const e2 = 2 * err;
-            if (e2 > -dy) {
-                err -= dy;
-                x += sx;
-            }
-            if (e2 < dx) {
-                err += dx;
-                y += sy;
-            }
+    drawLine(img, x1, y1, x2, y2, w) {
+        const dist = Math.hypot(x2 - x1, y2 - y1);
+        for (let i = 0; i <= dist * 2; i++) {
+            const t = i / (dist * 2);
+            this.dot(img, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, w);
         }
     }
     
-    drawCircle(image, cx, cy, r) {
-        for (let y = -r; y <= r; y++) {
-            for (let x = -r; x <= r; x++) {
-                const dist = Math.sqrt(x*x + y*y);
-                if (dist >= r - 1.5 && dist <= r + 1.5) {
-                    const px = cx + x;
-                    const py = cy + y;
+    drawCircle(img, cx, cy, r, w) {
+        const steps = Math.ceil(r * 2 * Math.PI);
+        for (let i = 0; i < steps; i++) {
+            const a = (i / steps) * 2 * Math.PI;
+            this.dot(img, cx + r * Math.cos(a), cy + r * Math.sin(a), w);
+        }
+    }
+    
+    drawEllipse(img, cx, cy, rx, ry, w) {
+        const steps = Math.ceil((rx + ry) * Math.PI);
+        for (let i = 0; i < steps; i++) {
+            const a = (i / steps) * 2 * Math.PI;
+            this.dot(img, cx + rx * Math.cos(a), cy + ry * Math.sin(a), w);
+        }
+    }
+    
+    drawArc(img, cx, cy, r, start, end, w) {
+        const steps = Math.ceil(r * Math.abs(end - start));
+        for (let i = 0; i <= steps; i++) {
+            const a = start + (end - start) * (i / steps);
+            this.dot(img, cx + r * Math.cos(a), cy + r * Math.sin(a), w);
+        }
+    }
+    
+    dot(img, x, y, r) {
+        for (let dy = -r; dy <= r; dy++) {
+            for (let dx = -r; dx <= r; dx++) {
+                const d = Math.hypot(dx, dy);
+                if (d <= r) {
+                    const px = Math.round(x + dx);
+                    const py = Math.round(y + dy);
                     if (px >= 0 && px < 28 && py >= 0 && py < 28) {
-                        image[py * 28 + px] = 1;
+                        img[py * 28 + px] = Math.max(img[py * 28 + px], 1 - d / r * 0.3);
                     }
                 }
             }
         }
     }
     
-    addTransformations(image) {
-        const result = new Array(28 * 28).fill(0);
-        
-        // 랜덤 이동 (-2 ~ +2 픽셀)
-        const shiftX = Math.floor(Math.random() * 5) - 2;
-        const shiftY = Math.floor(Math.random() * 5) - 2;
+    transform(img, slant) {
+        const out = new Array(784).fill(0);
+        const sx = Math.floor(Math.random() * 7) - 3;
+        const sy = Math.floor(Math.random() * 7) - 3;
+        const scale = 0.85 + Math.random() * 0.3;
         
         for (let y = 0; y < 28; y++) {
             for (let x = 0; x < 28; x++) {
-                const srcX = x - shiftX;
-                const srcY = y - shiftY;
-                
-                if (srcX >= 0 && srcX < 28 && srcY >= 0 && srcY < 28) {
-                    result[y * 28 + x] = image[srcY * 28 + srcX];
+                let tx = (x - 14) / scale - (y - 14) * slant + 14 + sx;
+                let ty = (y - 14) / scale + 14 + sy;
+                tx = Math.round(tx);
+                ty = Math.round(ty);
+                if (tx >= 0 && tx < 28 && ty >= 0 && ty < 28) {
+                    out[y * 28 + x] = img[ty * 28 + tx];
                 }
             }
         }
-        
-        return result;
+        return out;
     }
 }
 
-// CNN 시각화 애플리케이션
 class CNNVisualizer {
     constructor() {
         this.model = null;
@@ -190,21 +191,17 @@ class CNNVisualizer {
         this.drawCanvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousedown', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            this.drawCanvas.dispatchEvent(mouseEvent);
+            this.drawCanvas.dispatchEvent(new MouseEvent('mousedown', {
+                clientX: touch.clientX, clientY: touch.clientY
+            }));
         });
         
         this.drawCanvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousemove', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            this.drawCanvas.dispatchEvent(mouseEvent);
+            this.drawCanvas.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: touch.clientX, clientY: touch.clientY
+            }));
         });
         
         this.drawCanvas.addEventListener('touchend', (e) => {
@@ -234,16 +231,13 @@ class CNNVisualizer {
     
     draw(e) {
         if (!this.isDrawing) return;
-        
         const rect = this.drawCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
         this.drawCtx.beginPath();
         this.drawCtx.moveTo(this.lastX, this.lastY);
         this.drawCtx.lineTo(x, y);
         this.drawCtx.stroke();
-        
         this.lastX = x;
         this.lastY = y;
     }
@@ -255,14 +249,12 @@ class CNNVisualizer {
     clear() {
         this.drawCtx.fillStyle = 'white';
         this.drawCtx.fillRect(0, 0, this.drawCanvas.width, this.drawCanvas.height);
-        
         document.querySelector('.predicted-digit').textContent = '?';
         document.querySelector('.confidence').textContent = '확신도: --';
         document.getElementById('probabilityBars').innerHTML = '';
         document.getElementById('conv1Features').innerHTML = '';
         document.getElementById('conv2Features').innerHTML = '';
         document.getElementById('conv3Features').innerHTML = '';
-        
         const inputCanvas = document.getElementById('inputImage');
         const ctx = inputCanvas.getContext('2d');
         ctx.fillStyle = 'white';
@@ -275,342 +267,248 @@ class CNNVisualizer {
         const loadingDetail = loadingOverlay.querySelector('.loading-detail');
         
         try {
-            loadingText.textContent = 'CNN 모델 확인 중...';
-            loadingDetail.textContent = '저장된 모델을 찾고 있습니다';
+            loadingText.textContent = '고정확도 모델 확인 중...';
+            const saved = await this.tryLoad();
             
-            const hasSaved = await this.tryLoadSaved();
-            
-            if (!hasSaved) {
+            if (!saved) {
                 this.model = this.createModel();
-                
-                loadingText.textContent = '학습 데이터 생성 중...';
-                loadingDetail.textContent = '합성 숫자 패턴 생성 (외부 데이터 불필요)';
-                
-                await this.quickTrain(loadingText, loadingDetail);
+                loadingText.textContent = '고품질 데이터 생성 중...';
+                loadingDetail.textContent = '20,000개 현실적인 숫자 패턴';
+                await this.train(loadingText, loadingDetail);
             }
             
-            console.log('✅ 모델 준비 완료!');
+            console.log('✅ 준비 완료!');
             loadingOverlay.classList.add('hidden');
-            
-        } catch (error) {
-            console.error('오류:', error);
-            loadingText.textContent = '모델 준비 완료';
-            loadingDetail.textContent = '합성 데이터로 학습된 모델';
-            
-            if (!this.model) {
-                this.model = this.createModel();
-            }
-            
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-            }, 2000);
+        } catch (e) {
+            console.error(e);
+            if (!this.model) this.model = this.createModel();
+            setTimeout(() => loadingOverlay.classList.add('hidden'), 2000);
         }
     }
     
-    async tryLoadSaved() {
+    async tryLoad() {
         try {
-            this.model = await tf.loadLayersModel('indexeddb://mnist-synthetic-v1');
+            this.model = await tf.loadLayersModel('indexeddb://mnist-ultra-v1');
             console.log('✅ 저장된 모델 로드!');
             return true;
-        } catch (e) {
-            console.log('저장된 모델 없음, 새로 학습');
+        } catch {
             return false;
         }
     }
     
     createModel() {
-        const model = tf.sequential();
-        
-        model.add(tf.layers.conv2d({
-            inputShape: [28, 28, 1],
-            filters: 8,
-            kernelSize: 3,
-            activation: 'relu',
-            padding: 'same',
-            name: 'conv1'
-        }));
-        model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
-        
-        model.add(tf.layers.conv2d({
-            filters: 16,
-            kernelSize: 3,
-            activation: 'relu',
-            padding: 'same',
-            name: 'conv2'
-        }));
-        model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
-        
-        model.add(tf.layers.conv2d({
-            filters: 16,
-            kernelSize: 3,
-            activation: 'relu',
-            padding: 'same',
-            name: 'conv3'
-        }));
-        model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
-        
-        model.add(tf.layers.flatten());
-        model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
-        model.add(tf.layers.dropout({ rate: 0.3 }));
-        model.add(tf.layers.dense({ units: 10, activation: 'softmax' }));
-        
-        model.compile({
-            optimizer: tf.train.adam(0.001),
-            loss: 'categoricalCrossentropy',
-            metrics: ['accuracy']
-        });
-        
-        return model;
+        const m = tf.sequential();
+        m.add(tf.layers.conv2d({inputShape: [28,28,1], filters: 16, kernelSize: 3, activation: 'relu', padding: 'same', name: 'conv1'}));
+        m.add(tf.layers.maxPooling2d({poolSize: 2}));
+        m.add(tf.layers.dropout({rate: 0.2}));
+        m.add(tf.layers.conv2d({filters: 32, kernelSize: 3, activation: 'relu', padding: 'same', name: 'conv2'}));
+        m.add(tf.layers.maxPooling2d({poolSize: 2}));
+        m.add(tf.layers.dropout({rate: 0.2}));
+        m.add(tf.layers.conv2d({filters: 32, kernelSize: 3, activation: 'relu', padding: 'same', name: 'conv3'}));
+        m.add(tf.layers.maxPooling2d({poolSize: 2}));
+        m.add(tf.layers.dropout({rate: 0.2}));
+        m.add(tf.layers.flatten());
+        m.add(tf.layers.dense({units: 128, activation: 'relu'}));
+        m.add(tf.layers.dropout({rate: 0.4}));
+        m.add(tf.layers.dense({units: 64, activation: 'relu'}));
+        m.add(tf.layers.dropout({rate: 0.3}));
+        m.add(tf.layers.dense({units: 10, activation: 'softmax'}));
+        m.compile({optimizer: tf.train.adam(0.0005), loss: 'categoricalCrossentropy', metrics: ['accuracy']});
+        return m;
     }
     
-    async quickTrain(loadingText, loadingDetail) {
-        const trainer = new SimpleMNISTTrainer();
+    async train(loadingText, loadingDetail) {
+        const trainer = new AdvancedMNISTTrainer();
+        const data = trainer.generateSyntheticData(20000);
         
-        loadingText.textContent = '합성 데이터 생성 중...';
-        loadingDetail.textContent = '5000개 숫자 패턴 생성';
+        loadingText.textContent = '고정확도 학습 중...';
+        loadingDetail.textContent = '60-90초 소요 (최초 1회)';
         
-        const trainData = trainer.generateSyntheticData(5000);
-        
-        loadingText.textContent = '모델 학습 중...';
-        loadingDetail.textContent = '약 20-30초 소요 (최초 1회)';
-        
-        await this.model.fit(trainData.xs, trainData.ys, {
-            epochs: 20,
-            batchSize: 64,
-            validationSplit: 0.2,
+        await this.model.fit(data.xs, data.ys, {
+            epochs: 50,
+            batchSize: 256,
+            validationSplit: 0.15,
             shuffle: true,
             callbacks: {
                 onEpochEnd: (epoch, logs) => {
-                    const progress = ((epoch + 1) / 20 * 100).toFixed(0);
-                    loadingDetail.textContent = `학습 진행: ${progress}% | 정확도: ${(logs.acc * 100).toFixed(1)}%`;
+                    const p = ((epoch + 1) / 50 * 100).toFixed(0);
+                    const a = (logs.acc * 100).toFixed(1);
+                    const v = (logs.val_acc * 100).toFixed(1);
+                    loadingDetail.textContent = `${p}% | 학습: ${a}% | 검증: ${v}%`;
+                    console.log(`Epoch ${epoch + 1}/50: acc=${a}%, val_acc=${v}%`);
                 }
             }
         });
         
-        trainData.xs.dispose();
-        trainData.ys.dispose();
-        
-        loadingText.textContent = '모델 저장 중...';
-        loadingDetail.textContent = '다음 방문부터는 즉시 시작됩니다';
+        data.xs.dispose();
+        data.ys.dispose();
         
         try {
-            await this.model.save('indexeddb://mnist-synthetic-v1');
-            console.log('✅ 모델 저장 완료!');
-        } catch (e) {
-            console.log('⚠️ 모델 저장 실패 (시크릿 모드에서는 저장 불가)');
-        }
+            await this.model.save('indexeddb://mnist-ultra-v1');
+            console.log('✅ 모델 저장!');
+        } catch {}
     }
     
     preprocessCanvas() {
-        const smallCanvas = document.createElement('canvas');
-        smallCanvas.width = 28;
-        smallCanvas.height = 28;
-        const smallCtx = smallCanvas.getContext('2d');
+        const s = document.createElement('canvas');
+        s.width = s.height = 28;
+        const sc = s.getContext('2d');
+        sc.fillStyle = 'white';
+        sc.fillRect(0, 0, 28, 28);
+        sc.drawImage(this.drawCanvas, 0, 0, 28, 28);
         
-        smallCtx.fillStyle = 'white';
-        smallCtx.fillRect(0, 0, 28, 28);
-        smallCtx.drawImage(this.drawCanvas, 0, 0, 28, 28);
+        const ic = document.getElementById('inputImage').getContext('2d');
+        ic.imageSmoothingEnabled = false;
+        ic.drawImage(s, 0, 0, 140, 140);
         
-        const inputCanvas = document.getElementById('inputImage');
-        const inputCtx = inputCanvas.getContext('2d');
-        inputCtx.imageSmoothingEnabled = false;
-        inputCtx.drawImage(smallCanvas, 0, 0, 140, 140);
-        
-        const imageData = smallCtx.getImageData(0, 0, 28, 28);
-        const data = imageData.data;
-        
-        const input = [];
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            input.push((255 - gray) / 255);
+        const d = sc.getImageData(0, 0, 28, 28).data;
+        const inp = [];
+        for (let i = 0; i < d.length; i += 4) {
+            inp.push((255 - (d[i] + d[i + 1] + d[i + 2]) / 3) / 255);
         }
-        
-        return tf.tensor4d(input, [1, 28, 28, 1]);
+        return tf.tensor4d(inp, [1, 28, 28, 1]);
     }
     
     async predict() {
-        if (!this.model) {
-            alert('모델이 아직 준비되지 않았습니다.');
-            return;
-        }
+        if (!this.model) return alert('모델 준비 중');
         
         try {
-            const inputTensor = this.preprocessCanvas();
-            const layerOutputs = await this.getLayerOutputs(inputTensor);
-            const prediction = this.model.predict(inputTensor);
-            const probabilities = await prediction.data();
+            const inp = this.preprocessCanvas();
+            const out = await this.getOutputs(inp);
+            const pred = this.model.predict(inp);
+            const probs = await pred.data();
             
-            this.displayPrediction(probabilities);
-            this.visualizeFeatureMaps(layerOutputs);
-            this.displayProbabilities(probabilities);
+            this.displayPred(probs);
+            this.visualize(out);
+            this.displayProbs(probs);
             
-            inputTensor.dispose();
-            prediction.dispose();
-            
-        } catch (error) {
-            console.error('예측 오류:', error);
-            alert('예측 중 오류가 발생했습니다.');
+            inp.dispose();
+            pred.dispose();
+        } catch (e) {
+            console.error(e);
         }
     }
     
-    async getLayerOutputs(inputTensor) {
-        const outputs = {};
-        
+    async getOutputs(inp) {
+        const o = {};
         try {
-            const conv1Model = tf.model({
-                inputs: this.model.inputs,
-                outputs: this.model.getLayer('conv1').output
-            });
-            outputs.conv1 = conv1Model.predict(inputTensor);
-            
-            const conv2Model = tf.model({
-                inputs: this.model.inputs,
-                outputs: this.model.getLayer('conv2').output
-            });
-            outputs.conv2 = conv2Model.predict(inputTensor);
-            
-            const conv3Model = tf.model({
-                inputs: this.model.inputs,
-                outputs: this.model.getLayer('conv3').output
-            });
-            outputs.conv3 = conv3Model.predict(inputTensor);
-        } catch (error) {
-            console.error('레이어 출력 오류:', error);
-        }
-        
-        return outputs;
+            o.conv1 = tf.model({inputs: this.model.inputs, outputs: this.model.getLayer('conv1').output}).predict(inp);
+            o.conv2 = tf.model({inputs: this.model.inputs, outputs: this.model.getLayer('conv2').output}).predict(inp);
+            o.conv3 = tf.model({inputs: this.model.inputs, outputs: this.model.getLayer('conv3').output}).predict(inp);
+        } catch {}
+        return o;
     }
     
-    displayPrediction(probabilities) {
-        const predictedDigit = probabilities.indexOf(Math.max(...probabilities));
-        const confidence = (Math.max(...probabilities) * 100).toFixed(1);
-        
-        document.querySelector('.predicted-digit').textContent = predictedDigit;
-        document.querySelector('.confidence').textContent = `확신도: ${confidence}%`;
-        
-        const predContainer = document.querySelector('.prediction-container');
-        predContainer.classList.add('predicting');
-        setTimeout(() => predContainer.classList.remove('predicting'), 1500);
+    displayPred(probs) {
+        const digit = probs.indexOf(Math.max(...probs));
+        const conf = (Math.max(...probs) * 100).toFixed(1);
+        document.querySelector('.predicted-digit').textContent = digit;
+        document.querySelector('.confidence').textContent = `확신도: ${conf}%`;
+        const pc = document.querySelector('.prediction-container');
+        pc.classList.add('predicting');
+        setTimeout(() => pc.classList.remove('predicting'), 1500);
     }
     
-    displayProbabilities(probabilities) {
-        const container = document.getElementById('probabilityBars');
-        container.innerHTML = '';
-        
-        const maxProb = Math.max(...probabilities);
+    displayProbs(probs) {
+        const c = document.getElementById('probabilityBars');
+        c.innerHTML = '';
+        const max = Math.max(...probs);
         
         for (let i = 0; i < 10; i++) {
-            const prob = probabilities[i];
-            const percentage = (prob * 100).toFixed(1);
+            const p = probs[i];
+            const pct = (p * 100).toFixed(1);
             
-            const barContainer = document.createElement('div');
-            barContainer.className = 'prob-bar-container';
+            const bc = document.createElement('div');
+            bc.className = 'prob-bar-container';
             
-            const label = document.createElement('div');
-            label.className = 'prob-label';
-            label.textContent = i;
+            const l = document.createElement('div');
+            l.className = 'prob-label';
+            l.textContent = i;
             
-            const barWrapper = document.createElement('div');
-            barWrapper.className = 'prob-bar-wrapper';
+            const bw = document.createElement('div');
+            bw.className = 'prob-bar-wrapper';
             
-            const bar = document.createElement('div');
-            bar.className = 'prob-bar';
-            if (prob === maxProb) {
-                bar.classList.add('max-prob');
-            }
-            bar.style.width = '0%';
+            const b = document.createElement('div');
+            b.className = 'prob-bar';
+            if (p === max) b.classList.add('max-prob');
+            b.style.width = '0%';
             
-            const value = document.createElement('span');
-            value.className = 'prob-value';
-            value.textContent = `${percentage}%`;
+            const v = document.createElement('span');
+            v.className = 'prob-value';
+            v.textContent = `${pct}%`;
             
-            bar.appendChild(value);
-            barWrapper.appendChild(bar);
-            barContainer.appendChild(label);
-            barContainer.appendChild(barWrapper);
-            container.appendChild(barContainer);
+            b.appendChild(v);
+            bw.appendChild(b);
+            bc.appendChild(l);
+            bc.appendChild(bw);
+            c.appendChild(bc);
             
-            setTimeout(() => {
-                bar.style.width = `${prob * 100}%`;
-            }, 50 + i * 50);
+            setTimeout(() => b.style.width = `${p * 100}%`, 50 + i * 50);
         }
     }
     
-    async visualizeFeatureMaps(layerOutputs) {
-        if (layerOutputs.conv1) await this.visualizeLayer(layerOutputs.conv1, 'conv1Features', 70);
-        if (layerOutputs.conv2) await this.visualizeLayer(layerOutputs.conv2, 'conv2Features', 35);
-        if (layerOutputs.conv3) await this.visualizeLayer(layerOutputs.conv3, 'conv3Features', 17);
+    async visualize(out) {
+        if (out.conv1) await this.visLayer(out.conv1, 'conv1Features', 70);
+        if (out.conv2) await this.visLayer(out.conv2, 'conv2Features', 35);
+        if (out.conv3) await this.visLayer(out.conv3, 'conv3Features', 17);
     }
     
-    async visualizeLayer(tensorOutput, containerId, displaySize) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
+    async visLayer(tensor, id, size) {
+        const c = document.getElementById(id);
+        c.innerHTML = '';
+        const d = await tensor.array();
+        const b = d[0];
+        const h = b.length, w = b[0].length, ch = b[0][0].length;
+        const maxCh = Math.min(16, ch);
         
-        const data = await tensorOutput.array();
-        const batch = data[0];
-        const height = batch.length;
-        const width = batch[0].length;
-        const channels = batch[0][0].length;
-        
-        const maxChannels = Math.min(16, channels);
-        
-        for (let c = 0; c < maxChannels; c++) {
-            const canvas = document.createElement('canvas');
-            canvas.className = 'feature-map';
-            canvas.width = displaySize;
-            canvas.height = displaySize;
-            
-            const ctx = canvas.getContext('2d');
+        for (let i = 0; i < maxCh; i++) {
+            const cv = document.createElement('canvas');
+            cv.className = 'feature-map';
+            cv.width = cv.height = size;
+            const ctx = cv.getContext('2d');
             ctx.imageSmoothingEnabled = false;
             
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            const imageData = tempCtx.createImageData(width, height);
-            const pixels = imageData.data;
+            const tmp = document.createElement('canvas');
+            tmp.width = w;
+            tmp.height = h;
+            const tc = tmp.getContext('2d');
+            const img = tc.createImageData(w, h);
+            const px = img.data;
             
             let min = Infinity, max = -Infinity;
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const val = batch[y][x][c];
-                    if (val < min) min = val;
-                    if (val > max) max = val;
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const v = b[y][x][i];
+                    if (v < min) min = v;
+                    if (v > max) max = v;
+                }
+            }
+            const rng = max - min || 1;
+            
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const v = b[y][x][i];
+                    const n = (v - min) / rng;
+                    const it = Math.floor(n * 255);
+                    const idx = (y * w + x) * 4;
+                    px[idx] = 255 - it;
+                    px[idx + 1] = 255 - it * 0.5;
+                    px[idx + 2] = 255;
+                    px[idx + 3] = 255;
                 }
             }
             
-            const range = max - min || 1;
-            
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const val = batch[y][x][c];
-                    const normalized = (val - min) / range;
-                    const intensity = Math.floor(normalized * 255);
-                    
-                    const idx = (y * width + x) * 4;
-                    pixels[idx] = 255 - intensity;
-                    pixels[idx + 1] = 255 - intensity * 0.5;
-                    pixels[idx + 2] = 255;
-                    pixels[idx + 3] = 255;
-                }
-            }
-            
-            tempCtx.putImageData(imageData, 0, 0);
-            ctx.drawImage(tempCanvas, 0, 0, displaySize, displaySize);
-            
-            container.appendChild(canvas);
-            await new Promise(resolve => setTimeout(resolve, 30));
+            tc.putImageData(img, 0, 0);
+            ctx.drawImage(tmp, 0, 0, size, size);
+            c.appendChild(cv);
+            await new Promise(r => setTimeout(r, 30));
         }
-        
-        tensorOutput.dispose();
+        tensor.dispose();
     }
 }
 
-// 애플리케이션 시작
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new CNNVisualizer();
-    console.log('%c🧠 KAIST Include CNN 시각화', 'font-size: 20px; color: #667eea; font-weight: bold;');
-    console.log('%c✅ 완전 독립형 - 외부 데이터 불필요', 'font-size: 14px; color: #51cf66;');
-    console.log('TensorFlow.js 버전:', tf.version.tfjs);
+    new CNNVisualizer();
+    console.log('%c🚀 고정확도 CNN (20K샘플 + 50epochs)', 'font-size: 18px; color: #667eea; font-weight: bold');
+    console.log('TensorFlow.js:', tf.version.tfjs);
 });
