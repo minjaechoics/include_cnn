@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIST Include - CNN 체험</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 KAIST Include - CNN 체험</h1>
+            <p class="subtitle">숫자를 그려보세요! CNN이 어떻게 인식하는지 실시간으로 확인할 수 있습니다.</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 왼쪽: 그리기 캔버스 -->
+            <div class="canvas-section">
+                <div class="section-header">
+                    <h2>✏️ 숫자를 그려보세요</h2>
+                </div>
+                <canvas id="drawCanvas" width="400" height="400"></canvas>
+                <div class="controls">
+                    <button id="predictBtn" class="btn btn-primary">🔍 예측하기</button>
+                    <button id="clearBtn" class="btn btn-secondary">🗑️ 지우기</button>
+                </div>
+                <div class="instructions">
+                    <h3>사용 방법</h3>
+                    <ul>
+                        <li>마우스나 터치로 숫자를 그립니다</li>
+                        <li>"예측하기" 버튼을 눌러 CNN이 분석하게 합니다</li>
+                        <li>오른쪽에서 CNN의 작동 과정을 확인하세요</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 오른쪽: CNN 시각화 -->
+            <div class="visualization-section">
+                <!-- 입력 이미지 -->
+                <div class="layer-container">
+                    <h3>📥 입력 이미지 (28x28)</h3>
+                    <canvas id="inputImage" width="140" height="140"></canvas>
+                </div>
+
+                <!-- Conv Layer 1 -->
+                <div class="layer-container">
+                    <h3>🔍 Convolution Layer 1</h3>
+                    <p class="layer-desc">8개 필터로 선과 곡선 감지</p>
+                    <div id="conv1Features" class="feature-maps"></div>
+                </div>
+
+                <!-- Conv Layer 2 -->
+                <div class="layer-container">
+                    <h3>🔍 Convolution Layer 2</h3>
+                    <p class="layer-desc">16개 필터로 복잡한 패턴 인식</p>
+                    <div id="conv2Features" class="feature-maps"></div>
+                </div>
+
+                <!-- Conv Layer 3 -->
+                <div class="layer-container">
+                    <h3>🔍 Convolution Layer 3</h3>
+                    <p class="layer-desc">16개 필터로 숫자 형태 파악</p>
+                    <div id="conv3Features" class="feature-maps"></div>
+                </div>
+
+                <!-- 예측 결과 -->
+                <div class="prediction-container">
+                    <h3>🎯 예측 결과</h3>
+                    <div id="predictionResult" class="prediction-result">
+                        <div class="predicted-digit">?</div>
+                        <div class="confidence">확신도: --</div>
+                    </div>
+                </div>
+
+                <!-- 확률 분포 -->
+                <div class="probability-container">
+                    <h3>📊 확률 분포</h3>
+                    <div id="probabilityBars" class="probability-bars"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>KAIST Include 인공지능 동아리 | CNN 시각화 데모</p>
+            <p>Made with ❤️ using TensorFlow.js</p>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>CNN 모델 준비 중...</p>
+            <p class="loading-detail">처음 방문 시 MNIST 데이터 다운로드 및 학습 (1-2분)</p>
+            <p class="loading-detail">다음 방문부터는 즉시 시작됩니다!</p>
+        </div>
+    </div>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
