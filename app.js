@@ -10,12 +10,11 @@ class SimpleMNISTTrainer {
             const digit = Math.floor(Math.random() * 10);
             const image = this.createDigitPattern(digit);
             
-            // Flatten image array
-            xs.push(...image);
+            xs.push(image);
             
             const label = new Array(10).fill(0);
             label[digit] = 1;
-            ys.push(...label);
+            ys.push(label);
         }
         
         return {
@@ -27,83 +26,67 @@ class SimpleMNISTTrainer {
     createDigitPattern(digit) {
         const image = new Array(28 * 28).fill(0);
         
-        // 각 숫자별 더 정교한 패턴 생성
+        // 각 숫자별 패턴 생성
         switch(digit) {
             case 0:
-                this.drawCircle(image, 14, 14, 7);
-                this.drawCircle(image, 14, 14, 5); // 이중 원
+                this.drawCircle(image, 14, 14, 6);
                 break;
             case 1:
-                this.drawLine(image, 14, 5, 14, 23);
-                this.drawLine(image, 13, 5, 13, 23);
-                this.drawLine(image, 11, 7, 14, 5);
-                this.drawLine(image, 10, 23, 18, 23); // 밑줄
+                this.drawLine(image, 14, 6, 14, 22);
+                this.drawLine(image, 12, 8, 14, 6);
                 break;
             case 2:
                 this.drawLine(image, 8, 8, 20, 8);
-                this.drawLine(image, 20, 8, 20, 15);
-                this.drawLine(image, 20, 15, 8, 22);
-                this.drawLine(image, 8, 22, 20, 22);
-                this.drawLine(image, 8, 7, 20, 7); // 상단 강조
+                this.drawLine(image, 20, 8, 20, 14);
+                this.drawLine(image, 20, 14, 8, 20);
+                this.drawLine(image, 8, 20, 20, 20);
                 break;
             case 3:
-                this.drawLine(image, 8, 7, 20, 7);
-                this.drawLine(image, 20, 7, 20, 22);
-                this.drawLine(image, 8, 22, 20, 22);
-                this.drawLine(image, 10, 14, 19, 14);
-                this.drawLine(image, 8, 8, 19, 8);
-                this.drawLine(image, 8, 21, 19, 21);
+                this.drawLine(image, 8, 8, 20, 8);
+                this.drawLine(image, 20, 8, 20, 20);
+                this.drawLine(image, 8, 20, 20, 20);
+                this.drawLine(image, 12, 14, 18, 14);
                 break;
             case 4:
-                this.drawLine(image, 9, 6, 9, 17);
-                this.drawLine(image, 9, 17, 21, 17);
-                this.drawLine(image, 18, 5, 18, 23);
-                this.drawLine(image, 19, 5, 19, 23);
-                this.drawLine(image, 9, 16, 21, 16);
+                this.drawLine(image, 10, 6, 10, 16);
+                this.drawLine(image, 10, 16, 20, 16);
+                this.drawLine(image, 18, 8, 18, 22);
                 break;
             case 5:
                 this.drawLine(image, 8, 6, 20, 6);
-                this.drawLine(image, 8, 6, 8, 15);
-                this.drawLine(image, 8, 15, 20, 15);
-                this.drawLine(image, 20, 15, 20, 22);
-                this.drawLine(image, 8, 22, 20, 22);
-                this.drawLine(image, 19, 16, 19, 21);
+                this.drawLine(image, 8, 6, 8, 14);
+                this.drawLine(image, 8, 14, 20, 14);
+                this.drawLine(image, 20, 14, 20, 20);
+                this.drawLine(image, 8, 20, 20, 20);
                 break;
             case 6:
-                this.drawCircle(image, 14, 17, 6);
-                this.drawLine(image, 9, 8, 9, 17);
-                this.drawLine(image, 10, 8, 10, 17);
-                this.drawLine(image, 9, 8, 16, 8);
+                this.drawCircle(image, 14, 16, 5);
+                this.drawLine(image, 10, 8, 10, 16);
                 break;
             case 7:
-                this.drawLine(image, 7, 6, 21, 6);
-                this.drawLine(image, 7, 7, 21, 7);
-                this.drawLine(image, 21, 6, 12, 23);
-                this.drawLine(image, 20, 7, 13, 23);
+                this.drawLine(image, 8, 6, 20, 6);
+                this.drawLine(image, 20, 6, 14, 22);
                 break;
             case 8:
-                this.drawCircle(image, 14, 10, 5);
-                this.drawCircle(image, 14, 18, 5);
                 this.drawCircle(image, 14, 10, 4);
                 this.drawCircle(image, 14, 18, 4);
                 break;
             case 9:
-                this.drawCircle(image, 14, 11, 6);
-                this.drawLine(image, 19, 11, 19, 22);
-                this.drawLine(image, 18, 11, 18, 22);
-                this.drawLine(image, 13, 22, 19, 22);
+                this.drawCircle(image, 14, 12, 5);
+                this.drawLine(image, 18, 12, 18, 22);
                 break;
         }
         
-        // 약간의 변형만 추가 (노이즈 줄임)
+        // 노이즈 추가 (학습 다양성)
         for (let i = 0; i < image.length; i++) {
             if (image[i] > 0) {
-                image[i] = 0.8 + Math.random() * 0.2; // 더 일관된 강도
-            } else if (Math.random() < 0.01) { // 노이즈 감소
-                image[i] = Math.random() * 0.2;
+                image[i] = 0.7 + Math.random() * 0.3;
+            } else if (Math.random() < 0.02) {
+                image[i] = Math.random() * 0.3;
             }
         }
         
+        // 약간의 변형 추가
         const transformed = this.addTransformations(image);
         
         return transformed;
@@ -326,7 +309,7 @@ class CNNVisualizer {
     
     async tryLoadSaved() {
         try {
-            this.model = await tf.loadLayersModel('indexeddb://mnist-synthetic-v2');
+            this.model = await tf.loadLayersModel('indexeddb://mnist-synthetic-v1');
             console.log('✅ 저장된 모델 로드!');
             return true;
         } catch (e) {
@@ -384,21 +367,21 @@ class CNNVisualizer {
         const trainer = new SimpleMNISTTrainer();
         
         loadingText.textContent = '합성 데이터 생성 중...';
-        loadingDetail.textContent = '10000개 숫자 패턴 생성 (더 높은 정확도)';
+        loadingDetail.textContent = '5000개 숫자 패턴 생성';
         
-        const trainData = trainer.generateSyntheticData(10000);
+        const trainData = trainer.generateSyntheticData(5000);
         
         loadingText.textContent = '모델 학습 중...';
-        loadingDetail.textContent = '약 30-40초 소요 (최초 1회)';
+        loadingDetail.textContent = '약 20-30초 소요 (최초 1회)';
         
         await this.model.fit(trainData.xs, trainData.ys, {
-            epochs: 30,
-            batchSize: 128,
+            epochs: 20,
+            batchSize: 64,
             validationSplit: 0.2,
             shuffle: true,
             callbacks: {
                 onEpochEnd: (epoch, logs) => {
-                    const progress = ((epoch + 1) / 30 * 100).toFixed(0);
+                    const progress = ((epoch + 1) / 20 * 100).toFixed(0);
                     loadingDetail.textContent = `학습 진행: ${progress}% | 정확도: ${(logs.acc * 100).toFixed(1)}%`;
                 }
             }
@@ -411,7 +394,7 @@ class CNNVisualizer {
         loadingDetail.textContent = '다음 방문부터는 즉시 시작됩니다';
         
         try {
-            await this.model.save('indexeddb://mnist-synthetic-v2');
+            await this.model.save('indexeddb://mnist-synthetic-v1');
             console.log('✅ 모델 저장 완료!');
         } catch (e) {
             console.log('⚠️ 모델 저장 실패 (시크릿 모드에서는 저장 불가)');
