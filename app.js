@@ -10,11 +10,12 @@ class SimpleMNISTTrainer {
             const digit = Math.floor(Math.random() * 10);
             const image = this.createDigitPattern(digit);
             
-            xs.push(image);
+            // Flatten image array
+            xs.push(...image);
             
             const label = new Array(10).fill(0);
             label[digit] = 1;
-            ys.push(label);
+            ys.push(...label);
         }
         
         return {
